@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Verify Your Email</title>
+</head>
+<body style="margin:0;padding:0;background-color:#f4f6f9;font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;">
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color:#f4f6f9;padding:40px 0;">
+    <tr>
+      <td align="center">
+        <table role="presentation" width="560" cellpadding="0" cellspacing="0" style="background-color:#ffffff;border-radius:8px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,0.08);">
+          <!-- Header -->
+          <tr>
+            <td style="background-color:#1565c0;padding:32px 40px;text-align:center;">
+              <h1 style="margin:0;color:#ffffff;font-size:24px;font-weight:600;">InCharge</h1>
+            </td>
+          </tr>
+          <!-- Body -->
+          <tr>
+            <td style="padding:40px;">
+              <h2 style="margin:0 0 16px;color:#333333;font-size:20px;font-weight:600;">Verify Your Email Address</h2>
+              <p style="margin:0 0 24px;color:#555555;font-size:15px;line-height:1.6;">
+                Hi {{.Name}},
+              </p>
+              <p style="margin:0 0 24px;color:#555555;font-size:15px;line-height:1.6;">
+                Thank you for creating an InCharge account. Please click the button below to verify your email address.
+              </p>
+              <table role="presentation" cellpadding="0" cellspacing="0" style="margin:0 auto 24px;">
+                <tr>
+                  <td style="border-radius:6px;background-color:#1565c0;">
+                    <a href="{{.URL}}" target="_blank" style="display:inline-block;padding:14px 32px;color:#ffffff;text-decoration:none;font-size:15px;font-weight:600;border-radius:6px;">
+                      Verify Email Address
+                    </a>
+                  </td>
+                </tr>
+              </table>
+              <p style="margin:0 0 12px;color:#888888;font-size:13px;line-height:1.5;">
+                This verification link will expire in 72 hours.
+              </p>
+              <p style="margin:0;color:#888888;font-size:13px;line-height:1.5;">
+                If you did not create an account, no further action is required.
+              </p>
+              <hr style="border:none;border-top:1px solid #eeeeee;margin:32px 0 16px;">
+              <p style="margin:0;color:#aaaaaa;font-size:12px;line-height:1.5;">
+                If you're having trouble clicking the button, copy and paste this URL into your browser:<br>
+                <a href="{{.URL}}" style="color:#1565c0;word-break:break-all;">{{.URL}}</a>
+              </p>
+            </td>
+          </tr>
+          <!-- Footer -->
+          <tr>
+            <td style="background-color:#fafafa;padding:24px 40px;text-align:center;border-top:1px solid #eeeeee;">
+              <p style="margin:0;color:#aaaaaa;font-size:12px;">
+                &copy; InCharge. All rights reserved.
+              </p>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>

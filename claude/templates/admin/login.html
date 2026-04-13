@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>InCharge Admin - Login</title>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <style>
+    body { background-color: #e3f2fd; display: flex; min-height: 100vh; align-items: center; }
+    .login-card { max-width: 420px; margin: 0 auto; }
+    .login-card .card { border-radius: 8px; }
+    .card-header { background: #1565c0; padding: 28px; border-radius: 8px 8px 0 0; text-align: center; }
+    .card-header h4 { color: #fff; margin: 0; font-size: 22px; font-weight: 500; }
+    .card-header p { color: rgba(255,255,255,0.8); margin: 6px 0 0; font-size: 14px; }
+    .btn-login { background-color: #1565c0; border-radius: 4px; }
+    .btn-login:hover { background-color: #0d47a1; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="login-card">
+      <div class="card">
+        <div class="card-header">
+          <h4>InCharge</h4>
+          <p>Admin Panel</p>
+        </div>
+        <div class="card-content">
+          <form id="loginForm">
+            <div class="input-field">
+              <i class="material-icons prefix">email</i>
+              <input type="email" id="email" required>
+              <label for="email">Email</label>
+            </div>
+            <div class="input-field">
+              <i class="material-icons prefix">lock</i>
+              <input type="password" id="password" required>
+              <label for="password">Password</label>
+            </div>
+            <button class="btn btn-login waves-effect waves-light col s12" type="submit" style="width:100%">
+              Login <i class="material-icons right">arrow_forward</i>
+            </button>
+          </form>
+          <div id="error" class="red-text center-align" style="margin-top:16px;min-height:20px;"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+  <script>
+    document.getElementById('loginForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      var errEl = document.getElementById('error');
+      errEl.textContent = '';
+      var btn = this.querySelector('button');
+      btn.disabled = true;
+      btn.textContent = 'Logging in...';
+
+      fetch('/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: document.getElementById('email').value,
+          password: document.getElementById('password').value
+        })
+      })
+      .then(function(r) {
+        if (r.ok) {
+          window.location = '/panel';
+        } else {
+          return r.json().then(function(d) {
+            errEl.textContent = d.message || 'Invalid credentials';
+          });
+        }
+      })
+      .catch(function() {
+        errEl.textContent = 'Login failed. Please try again.';
+      })
+      .finally(function() {
+        btn.disabled = false;
+        btn.innerHTML = 'Login <i class="material-icons right">arrow_forward</i>';
+      });
+    });
+  </script>
+</body>
+</html>

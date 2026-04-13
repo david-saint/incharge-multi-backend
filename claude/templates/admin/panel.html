@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>InCharge Admin Panel</title>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <style>
+    body { display: flex; min-height: 100vh; flex-direction: column; background: #fafafa; }
+    main { flex: 1 0 auto; }
+    .sidenav-fixed { width: 240px; background: #1565c0; }
+    .sidenav-fixed li > a { color: rgba(255,255,255,0.9); }
+    .sidenav-fixed li > a:hover { background: rgba(255,255,255,0.1); }
+    .sidenav-fixed li > a > i { color: rgba(255,255,255,0.9); }
+    .sidenav-fixed .divider { background: rgba(255,255,255,0.15); }
+    .sidenav-fixed .user-view { padding: 24px 20px 16px; background: #0d47a1; }
+    .sidenav-fixed .user-view .name { color: #fff; font-size: 16px; font-weight: 500; }
+    .sidenav-fixed .user-view .sub { color: rgba(255,255,255,0.7); font-size: 13px; }
+    .content-area { margin-left: 240px; padding: 24px 32px; }
+    @media only screen and (max-width: 992px) { .content-area { margin-left: 0; } }
+    .section-title { font-size: 22px; font-weight: 500; color: #333; margin: 0 0 20px; }
+    .stat-card { border-radius: 8px; }
+    .stat-card .card-content { padding: 20px; }
+    .stat-card .stat-value { font-size: 28px; font-weight: 600; color: #1565c0; }
+    .stat-card .stat-label { font-size: 13px; color: #888; margin-top: 4px; }
+    .data-table { border-radius: 4px; overflow: hidden; }
+    .nav-active { background: rgba(255,255,255,0.15) !important; }
+    .action-btn { cursor: pointer; margin: 0 2px; }
+    .modal { border-radius: 8px; }
+    .badge-verified { background: #43a047; color: #fff; border-radius: 12px; padding: 2px 10px; font-size: 12px; }
+    .badge-unverified { background: #e53935; color: #fff; border-radius: 12px; padding: 2px 10px; font-size: 12px; }
+  </style>
+</head>
+<body>
+  <!-- Sidebar -->
+  <ul id="nav-mobile" class="sidenav sidenav-fixed">
+    <li>
+      <div class="user-view">
+        <span class="name">InCharge</span><br>
+        <span class="sub">Admin Panel</span>
+      </div>
+    </li>
+    <li><a href="#" onclick="loadSection('dashboard')" class="nav-link" data-section="dashboard"><i class="material-icons">dashboard</i>Dashboard</a></li>
+    <li><a href="#" onclick="loadSection('users')" class="nav-link" data-section="users"><i class="material-icons">people</i>Users</a></li>
+    <li><a href="#" onclick="loadSection('clinics')" class="nav-link" data-section="clinics"><i class="material-icons">local_hospital</i>Clinics</a></li>
+    <li><a href="#" onclick="loadSection('admins')" class="nav-link" data-section="admins"><i class="material-icons">admin_panel_settings</i>Admins</a></li>
+    <li><a href="#" onclick="loadSection('algorithms')" class="nav-link" data-section="algorithms"><i class="material-icons">account_tree</i>Algorithms</a></li>
+    <li><div class="divider"></div></li>
+    <li><a href="/logout"><i class="material-icons">exit_to_app</i>Logout</a></li>
+  </ul>
+
+  <main class="content-area">
+    <div id="content">
+      <h4 class="section-title">Dashboard</h4>
+      <p class="grey-text">Loading...</p>
+    </div>
+  </main>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+  <script>
+    // Navigation
+    function setActive(section) {
+      document.querySelectorAll('.nav-link').forEach(function(el) { el.classList.remove('nav-active'); });
+      var el = document.querySelector('[data-section="' + section + '"]');
+      if (el) el.classList.add('nav-active');
+    }
+
+    function loadSection(section) {
+      setActive(section);
+      var c = document.getElementById('content');
+      c.innerHTML = '<h4 class="section-title">' + capitalize(section) + '</h4><div class="progress"><div class="indeterminate"></div></div>';
+
+      switch (section) {
+        case 'dashboard': loadDashboard(); break;
+        case 'users': loadUsers(); break;
+        case 'clinics': loadClinics(); break;
+        case 'admins': loadAdmins(); break;
+        case 'algorithms': loadAlgorithms(); break;
+      }
+    }
+
+    function capitalize(s) { return s.charAt(0).toUpperCase() + s.slice(1); }
+
+    // Dashboard
+    function loadDashboard() {
+      Promise.all([
+        fetch('/getUsers').then(function(r){return r.json();}),
+        fetch('/getClinics').then(function(r){return r.json();}),
+        fetch('/allAdmins').then(function(r){return r.json();})
+      ]).then(function(results) {
+        var users = results[0], clinics = results[1], admins = results[2];
+        var c = document.getElementById('content');
+        c.innerHTML = '<h4 class="section-title">Dashboard</h4>' +
+          '<div class="row">' +
+            statCard('Users', users.total || 0, 'people', 'blue') +
+            statCard('Clinics', clinics.total || 0, 'local_hospital', 'teal') +
+            statCard('Admins', admins.total || 0, 'admin_panel_settings', 'orange') +
+          '</div>' +
+          '<div class="row"><div class="col s12"><p class="grey-text">Welcome to the InCharge Admin Panel. Use the sidebar to manage resources.</p></div></div>';
+      }).catch(function() {
+        document.getElementById('content').innerHTML = '<h4 class="section-title">Dashboard</h4><p>Welcome to the InCharge Admin Panel.</p>';
+      });
+    }
+
+    function statCard(label, value, icon, color) {
+      return '<div class="col s12 m4"><div class="card stat-card"><div class="card-content">' +
+        '<i class="material-icons ' + color + '-text" style="font-size:32px">' + icon + '</i>' +
+        '<div class="stat-value">' + value + '</div>' +
+        '<div class="stat-label">' + label + '</div>' +
+        '</div></div></div>';
+    }
+
+    // Users
+    function loadUsers() {
+      fetch('/getUsers').then(function(r){return r.json();}).then(function(d) {
+        var rows = d.data || [];
+        var c = document.getElementById('content');
+        c.innerHTML = '<h4 class="section-title">Users</h4>' +
+          '<p class="grey-text">Total: ' + (d.total || rows.length) + '</p>';
+        if (!rows.length) { c.innerHTML += '<p>No users found.</p>'; return; }
+        c.innerHTML += buildTable(rows, ['id', 'name', 'email', 'email_verified', 'created_at'], [
+          {icon: 'delete', color: 'red', action: 'deleteUser'}
+        ]);
+      });
+    }
+
+    // Clinics
+    function loadClinics() {
+      fetch('/getClinics').then(function(r){return r.json();}).then(function(d) {
+        var rows = d.data || [];
+        var c = document.getElementById('content');
+        c.innerHTML = '<h4 class="section-title">Clinics</h4>' +
+          '<p class="grey-text">Total: ' + (d.total || rows.length) + '</p>';
+        if (!rows.length) { c.innerHTML += '<p>No clinics found.</p>'; return; }
+        c.innerHTML += buildTable(rows, ['id', 'name', 'address', 'latitude', 'longitude', 'created_at'], [
+          {icon: 'delete', color: 'red', action: 'deleteClinic'}
+        ]);
+      });
+    }
+
+    // Admins
+    function loadAdmins() {
+      fetch('/allAdmins').then(function(r){return r.json();}).then(function(d) {
+        var rows = d.data || [];
+        var c = document.getElementById('content');
+        c.innerHTML = '<h4 class="section-title">Admins</h4>' +
+          '<p class="grey-text">Total: ' + (d.total || rows.length) + '</p>';
+        if (!rows.length) { c.innerHTML += '<p>No admins found.</p>'; return; }
+        var html = '<table class="striped highlight data-table"><thead><tr>';
+        ['ID', 'Name', 'Email', 'Type', 'Verified'].forEach(function(h) { html += '<th>' + h + '</th>'; });
+        html += '</tr></thead><tbody>';
+        rows.forEach(function(r) {
+          var badge = r.verified === 'Y'
+            ? '<span class="badge-verified">Verified</span>'
+            : '<span class="badge-unverified">Unverified</span>';
+          html += '<tr><td>' + r.id + '</td><td>' + r.firstname + ' ' + r.lastname +
+            '</td><td>' + r.email + '</td><td>' + r.userType + '</td><td>' + badge + '</td></tr>';
+        });
+        html += '</tbody></table>';
+        c.innerHTML += html;
+      });
+    }
+
+    // Algorithms
+    function loadAlgorithms() {
+      fetch('/algo').then(function(r){return r.json();}).then(function(rows) {
+        if (!Array.isArray(rows)) rows = [];
+        var c = document.getElementById('content');
+        c.innerHTML = '<h4 class="section-title">Algorithms</h4>' +
+          '<p class="grey-text">Total: ' + rows.length + '</p>';
+        if (!rows.length) { c.innerHTML += '<p>No algorithm steps found.</p>'; return; }
+        c.innerHTML += buildTable(rows, ['id', 'text', 'actionType', 'active', 'series'], []);
+      });
+    }
+
+    // Table builder
+    function buildTable(rows, cols, actions) {
+      var html = '<table class="striped highlight data-table"><thead><tr>';
+      cols.forEach(function(c) { html += '<th>' + c + '</th>'; });
+      if (actions.length) html += '<th>Actions</th>';
+      html += '</tr></thead><tbody>';
+      rows.forEach(function(r) {
+        html += '<tr>';
+        cols.forEach(function(c) {
+          var val = r[c];
+          if (val === null || val === undefined) val = '';
+          if (typeof val === 'object' && val.Valid !== undefined) val = val.String || '';
+          html += '<td>' + val + '</td>';
+        });
+        if (actions.length) {
+          html += '<td>';
+          actions.forEach(function(a) {
+            html += '<i class="material-icons action-btn ' + a.color + '-text" onclick="doAction(\'' + a.action + '\',' + r.id + ')" title="' + a.action + '">' + a.icon + '</i>';
+          });
+          html += '</td>';
+        }
+        html += '</tr>';
+      });
+      html += '</tbody></table>';
+      return html;
+    }
+
+    // Actions
+    function doAction(action, id) {
+      if (!confirm('Are you sure?')) return;
+      var url, method;
+      switch(action) {
+        case 'deleteUser':   url = '/deleteUser/' + id; method = 'DELETE'; break;
+        case 'deleteClinic': url = '/deleteClinic/' + id; method = 'DELETE'; break;
+        default: return;
+      }
+      fetch(url, { method: method }).then(function(r) {
+        if (r.ok) {
+          M.toast({html: 'Action completed successfully'});
+          if (action.indexOf('User') > -1) loadSection('users');
+          else loadSection('clinics');
+        } else {
+          M.toast({html: 'Action failed', classes: 'red'});
+        }
+      });
+    }
+
+    // Load dashboard on page load
+    loadSection('dashboard');
+  </script>
+</body>
+</html>

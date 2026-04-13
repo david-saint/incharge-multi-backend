@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>InCharge Admin - Initial Setup</title>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <style>
+    body { background-color: #e3f2fd; display: flex; min-height: 100vh; align-items: center; }
+    .register-card { max-width: 560px; margin: 0 auto; }
+    .register-card .card { border-radius: 8px; }
+    .card-header { background: #1565c0; padding: 28px; border-radius: 8px 8px 0 0; text-align: center; }
+    .card-header h4 { color: #fff; margin: 0; font-size: 22px; font-weight: 500; }
+    .card-header p { color: rgba(255,255,255,0.8); margin: 6px 0 0; font-size: 14px; }
+    .btn-register { background-color: #1565c0; border-radius: 4px; }
+    .btn-register:hover { background-color: #0d47a1; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="register-card">
+      <div class="card">
+        <div class="card-header">
+          <h4>InCharge</h4>
+          <p>Create Super Admin Account</p>
+        </div>
+        <div class="card-content">
+          <p class="grey-text">No admin accounts exist. Create the first Super Admin to get started.</p>
+          <form id="regForm">
+            <div class="row" style="margin-bottom:0">
+              <div class="input-field col s6">
+                <i class="material-icons prefix">person</i>
+                <input type="text" id="firstname" required>
+                <label for="firstname">First Name</label>
+              </div>
+              <div class="input-field col s6">
+                <input type="text" id="lastname" required>
+                <label for="lastname">Last Name</label>
+              </div>
+            </div>
+            <div class="input-field">
+              <i class="material-icons prefix">email</i>
+              <input type="email" id="email" required>
+              <label for="email">Email</label>
+            </div>
+            <div class="input-field">
+              <i class="material-icons prefix">phone</i>
+              <input type="text" id="phone">
+              <label for="phone">Phone (optional)</label>
+            </div>
+            <div class="input-field">
+              <i class="material-icons prefix">lock</i>
+              <input type="password" id="password" required minlength="6">
+              <label for="password">Password (min 6 characters)</label>
+            </div>
+            <button class="btn btn-register waves-effect waves-light col s12" type="submit" style="width:100%">
+              Create Admin <i class="material-icons right">check</i>
+            </button>
+          </form>
+          <div id="error" class="red-text center-align" style="margin-top:16px;min-height:20px;"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+  <script>
+    document.getElementById('regForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      var errEl = document.getElementById('error');
+      errEl.textContent = '';
+      var btn = this.querySelector('button');
+      btn.disabled = true;
+
+      fetch('/admin', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          firstname: document.getElementById('firstname').value,
+          lastname: document.getElementById('lastname').value,
+          email: document.getElementById('email').value,
+          phone: document.getElementById('phone').value,
+          password: document.getElementById('password').value,
+          verified: 'Y',
+          userType: 'Super'
+        })
+      })
+      .then(function(r) { return r.json(); })
+      .then(function(d) {
+        if (d.id) {
+          window.location = '/panel';
+        } else {
+          errEl.textContent = d.message || 'Registration failed';
+          if (d.errors) {
+            var msgs = [];
+            for (var k in d.errors) { msgs.push(d.errors[k].join(', ')); }
+            errEl.textContent = msgs.join('; ');
+          }
+        }
+      })
+      .catch(function() {
+        errEl.textContent = 'Registration failed. Please try again.';
+      })
+      .finally(function() {
+        btn.disabled = false;
+        btn.innerHTML = 'Create Admin <i class="material-icons right">check</i>';
+      });
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,20 @@
+export const GENDERS = ['MALE', 'FEMALE', 'OTHER'] as const;
+export const MARITAL_STATUSES = ['SINGLE', 'RELATIONSHIP'] as const;
+export const RELIGIONS = ['CHRISTIANITY', 'ISLAM', 'OTHER'] as const;
+export const RELIGION_SECTS = ['CATHOLIC', 'PENTECOSTAL', 'OTHER'] as const;
+export const ADMIN_USER_TYPES = ['Super', 'Sub'] as const;
+export const ADMIN_VERIFIED_VALUES = ['Y', 'N'] as const;
+export const ACTIVE_FLAG_VALUES = ['Y', 'N'] as const;
+export const PROFILE_PLAN_KEY = 'contraceptive_plan';
+export const CLINIC_LOCATABLE_TYPE = 'App\\Models\\Clinic';
+export const ALGORITHM_ACTION_TYPES = ['bool', 'input', 'date'] as const;
+export const PROGESTOGEN_POSSIBLE = ['true', 'false'] as const;
+export const PROGESTOGEN_DIRECTIONS = ['positive', 'negative'] as const;
+
+export type Gender = (typeof GENDERS)[number];
+export type MaritalStatus = (typeof MARITAL_STATUSES)[number];
+export type Religion = (typeof RELIGIONS)[number];
+export type ReligionSect = (typeof RELIGION_SECTS)[number];
+export type AdminUserType = (typeof ADMIN_USER_TYPES)[number];
+export type YesNoFlag = (typeof ACTIVE_FLAG_VALUES)[number];
+export type AlgorithmActionType = (typeof ALGORITHM_ACTION_TYPES)[number];
