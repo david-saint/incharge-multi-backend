@@ -15,8 +15,8 @@ coverage/
 out/
 
 # Go
-incharge
-server
+/incharge
+/server
 *.exe
 *.exe~
 *.dll
