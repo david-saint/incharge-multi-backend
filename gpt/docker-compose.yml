@@ -1,7 +1,4 @@
 services:
-  # ---------------------------------------------------------------------------
-  # MySQL Database
-  # ---------------------------------------------------------------------------
   db:
     image: mysql:8.0
     restart: unless-stopped
@@ -21,38 +18,42 @@ services:
       retries: 5
       start_period: 30s
 
-  # ---------------------------------------------------------------------------
-  # InCharge API Server
-  # ---------------------------------------------------------------------------
   app:
     build:
       context: .
       dockerfile: Dockerfile
     restart: unless-stopped
     ports:
-      - "${APP_PORT:-8080}:${APP_PORT:-8080}"
+      - "${PORT:-3000}:${PORT:-3000}"
     env_file:
       - path: .env
         required: false
     environment:
       APP_ENV: ${APP_ENV:-local}
-      APP_PORT: ${APP_PORT:-8080}
-      APP_URL: ${APP_URL:-http://localhost:8080}
-      APP_API_DOMAIN: ${APP_API_DOMAIN:-localhost}
-      APP_USER_DOMAIN: ${APP_USER_DOMAIN:-http://localhost:3000}
+      PORT: ${PORT:-3000}
+      APP_URL: ${APP_URL:-http://localhost:3000}
+      APP_API_DOMAIN: ${APP_API_DOMAIN:-http://localhost:3000}
+      APP_USER_DOMAIN: ${APP_USER_DOMAIN:-http://localhost:5173}
+      DB_CONNECTION: mysql
       DB_HOST: db
       DB_DATABASE: ${DB_DATABASE:-incharge}
       DB_USERNAME: ${DB_USERNAME:-incharge}
       DB_PASSWORD: ${DB_PASSWORD:-secret}
       DB_PORT: "3306"
-      JWT_SECRET: ${JWT_SECRET:-change-me-to-a-random-jwt-secret}
-      JWT_TTL_MINUTES: ${JWT_TTL_MINUTES:-1440}
-      APP_SESSION_SECRET: ${APP_SESSION_SECRET:-change-me-to-a-random-secret}
+      DB_SYNCHRONIZE: ${DB_SYNCHRONIZE:-true}
+      AUTO_SEED: ${AUTO_SEED:-true}
+      JWT_SECRET: ${JWT_SECRET:-change-me-secret}
+      JWT_TTL_SECONDS: ${JWT_TTL_SECONDS:-3600}
+      SESSION_SECRET: ${SESSION_SECRET:-change-me-session-secret}
+      SESSION_STORE: mysql
+      MAIL_ENABLED: ${MAIL_ENABLED:-false}
       MAIL_HOST: ${MAIL_HOST:-127.0.0.1}
       MAIL_PORT: ${MAIL_PORT:-1025}
       MAIL_USERNAME: ${MAIL_USERNAME:-}
       MAIL_PASSWORD: ${MAIL_PASSWORD:-}
       MAIL_ENCRYPTION: ${MAIL_ENCRYPTION:-}
+      PASSWORD_RESET_EXPIRY_MINUTES: ${PASSWORD_RESET_EXPIRY_MINUTES:-60}
+      EMAIL_VERIFICATION_EXPIRY_MINUTES: ${EMAIL_VERIFICATION_EXPIRY_MINUTES:-4320}
     depends_on:
       db:
         condition: service_healthy

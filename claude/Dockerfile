@@ -31,7 +31,6 @@ WORKDIR /app
 # Copy binary and templates from builder.
 COPY --from=builder /bin/incharge .
 COPY --from=builder /src/templates ./templates
-COPY --from=builder /src/web ./web
 
 # Use non-root user.
 USER incharge

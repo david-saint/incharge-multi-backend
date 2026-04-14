@@ -5,6 +5,7 @@ import (
 	"html/template"
 	"log/slog"
 	"net/http"
+	"os"
 	"path/filepath"
 	"runtime"
 	"strconv"
@@ -57,7 +58,10 @@ func NewAdminHandler(
 
 func (h *AdminHandler) loadTemplates() {
 	_, filename, _, _ := runtime.Caller(0)
-	baseDir := filepath.Join(filepath.Dir(filename), "..", "..", "templates", "admin")
+	baseDir := resolveAdminTemplateDir(
+		filepath.Join("templates", "admin"),
+		filepath.Join(filepath.Dir(filename), "..", "..", "templates", "admin"),
+	)
 
 	for _, name := range []string{"login", "register", "panel", "privacy"} {
 		path := filepath.Join(baseDir, name+".html")
@@ -68,6 +72,15 @@ func (h *AdminHandler) loadTemplates() {
 		}
 		h.templates[name] = t
 	}
+}
+
+func resolveAdminTemplateDir(candidates ...string) string {
+	for _, candidate := range candidates {
+		if _, err := os.Stat(candidate); err == nil {
+			return candidate
+		}
+	}
+	return candidates[len(candidates)-1]
 }
 
 func adminFallbackTemplate(name string) string {

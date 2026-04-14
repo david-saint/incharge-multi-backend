@@ -7,6 +7,7 @@ import (
 	"html/template"
 	"log/slog"
 	"net/smtp"
+	"os"
 	"path/filepath"
 	"runtime"
 
@@ -31,7 +32,10 @@ func NewEmailService(cfg *config.MailConfig) *EmailService {
 
 func (s *EmailService) loadTemplates() {
 	_, filename, _, _ := runtime.Caller(0)
-	baseDir := filepath.Join(filepath.Dir(filename), "..", "..", "templates", "emails")
+	baseDir := resolveTemplateDir(
+		filepath.Join("templates", "emails"),
+		filepath.Join(filepath.Dir(filename), "..", "..", "templates", "emails"),
+	)
 
 	for _, name := range []string{"verify", "reset"} {
 		path := filepath.Join(baseDir, name+".html")
@@ -43,6 +47,15 @@ func (s *EmailService) loadTemplates() {
 		}
 		s.templates[name] = t
 	}
+}
+
+func resolveTemplateDir(candidates ...string) string {
+	for _, candidate := range candidates {
+		if _, err := os.Stat(candidate); err == nil {
+			return candidate
+		}
+	}
+	return candidates[len(candidates)-1]
 }
 
 func fallbackTemplate(name string) string {
