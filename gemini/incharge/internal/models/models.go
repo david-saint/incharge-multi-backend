@@ -59,7 +59,7 @@ type Clinic struct {
 	Longitude *float64       `gorm:"type:decimal(10,7)" json:"longitude,omitempty"`
 	AddedByID uint           `gorm:"not null" json:"added_by_id"`
 	Meta      *string        `gorm:"type:json" json:"meta,omitempty"`
-	Locations []Location     `gorm:"many2many:locatables;foreignKey:ID;joinForeignKey:LocatableID;references:ID;joinReferences:LocationID" json:"locations,omitempty"`
+	Locations []Location     `gorm:"many2many:locatables;polymorphic:Locatable;joinForeignKey:LocatableID;joinReferences:LocationID" json:"locations,omitempty"`
 	CreatedAt time.Time      `json:"created_at"`
 	UpdatedAt time.Time      `json:"updated_at"`
 	DeletedAt gorm.DeletedAt `gorm:"index" json:"-"`
@@ -80,7 +80,7 @@ type Location struct {
 	Latitude  *float64       `gorm:"type:decimal(10,7)" json:"latitude,omitempty"`
 	Longitude *float64       `gorm:"type:decimal(10,7)" json:"longitude,omitempty"`
 	Meta      *string        `gorm:"type:json" json:"meta,omitempty"`
-	Clinics   []Clinic       `gorm:"many2many:locatables;foreignKey:ID;joinForeignKey:LocationID;references:ID;joinReferences:LocatableID" json:"clinics,omitempty"`
+	Clinics   []Clinic       `gorm:"many2many:locatables;polymorphic:Locatable;joinForeignKey:LocationID;joinReferences:LocatableID" json:"clinics,omitempty"`
 	CreatedAt time.Time      `json:"created_at"`
 	UpdatedAt time.Time      `json:"updated_at"`
 	DeletedAt gorm.DeletedAt `gorm:"index" json:"-"`
