@@ -41,7 +41,7 @@ export class Profile {
   @Column({ type: 'datetime', name: 'date_of_birth' })
   dateOfBirth!: Date;
 
-  @Column({ type: 'text', default: '' })
+  @Column({ type: 'text' })
   address!: string;
 
   @Column({ type: 'decimal', precision: 10, scale: 7, nullable: true })

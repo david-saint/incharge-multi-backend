@@ -43,14 +43,37 @@ func LoadConfig(path string) (config Config, err error) {
 	}
 
 	err = viper.Unmarshal(&config)
+	if err != nil {
+		return
+	}
 
-	// Defaults
-	if config.Port == "" {
-		config.Port = "8080"
-	}
-	if config.AppEnv == "" {
-		config.AppEnv = "local"
-	}
+	config.Port = getString("PORT", config.Port, "8080")
+	config.AppEnv = getString("APP_ENV", config.AppEnv, "local")
+	config.AppUrl = getString("APP_URL", config.AppUrl, "http://localhost:"+config.Port)
+	config.ApiDomain = getString("APP_API_DOMAIN", config.ApiDomain, config.AppUrl)
+	config.UserDomain = getString("APP_USER_DOMAIN", config.UserDomain, "http://localhost:3000")
+	config.DBConnection = getString("DB_CONNECTION", config.DBConnection, "mysql")
+	config.DBHost = getString("DB_HOST", config.DBHost, "127.0.0.1")
+	config.DBPort = getString("DB_PORT", config.DBPort, "3306")
+	config.DBDatabase = getString("DB_DATABASE", config.DBDatabase, "incharge")
+	config.DBUsername = getString("DB_USERNAME", config.DBUsername, "incharge")
+	config.DBPassword = getString("DB_PASSWORD", config.DBPassword, "secret")
+	config.JWTSecret = getString("JWT_SECRET", config.JWTSecret, "change-me-secret")
+	config.MailHost = getString("MAIL_HOST", config.MailHost, "")
+	config.MailPort = getString("MAIL_PORT", config.MailPort, "1025")
+	config.MailUsername = getString("MAIL_USERNAME", config.MailUsername, "")
+	config.MailPassword = getString("MAIL_PASSWORD", config.MailPassword, "")
+	config.MailEncryption = getString("MAIL_ENCRYPTION", config.MailEncryption, "")
 
 	return
+}
+
+func getString(key, currentValue, fallback string) string {
+	if value := viper.GetString(key); value != "" {
+		return value
+	}
+	if currentValue != "" {
+		return currentValue
+	}
+	return fallback
 }
